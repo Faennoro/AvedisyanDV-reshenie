@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -28,15 +27,15 @@ public class App{
         JButton getDirectoryButton = new JButton("Выбрать каталог"); //Кнопка для выбора каталога
         final JButton startButton = new JButton("Старт"); //Кнопка для запуска процесса конвертирования
         final JButton stopButton = new JButton("Стоп");   //Кнопка для остановки процесса конвертирования
-        final JLabel currentDirLabel = new JLabel("");
-        final JLabel startTimeLabel = new JLabel("");
-        final JLabel stopTimeLabel = new JLabel("");
-        final JFileChooser dirChooser = new JFileChooser();
+        final JLabel currentDirLabel = new JLabel(""); //Показывает выбранную папку
+        final JLabel startTimeLabel = new JLabel(""); //Показывает время запуска процесса
+        final JLabel stopTimeLabel = new JLabel(""); //Показывает время остановки процесса
+        final JFileChooser dirChooser = new JFileChooser(); //Диалоговое окно для выбора папки
 
         //Добавление элементов на панель
         mainFrame.add(getDirectoryButton);
         mainFrame.add(startButton);
-        stopButton.setEnabled(false);
+        stopButton.setEnabled(false); //При запуске приложения нет запущенного процесса конвертации
         mainFrame.add(stopButton);
         mainFrame.add(currentDirLabel);
         mainFrame.add(startTimeLabel);
@@ -46,10 +45,9 @@ public class App{
 
         getDirectoryButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); //указываются только папки
                 dirChooser.showOpenDialog(mainFrame.getContentPane());
-                File dir = dirChooser.getSelectedFile();
-                currentDirLabel.setText("Выбранный каталог - "+dir.getAbsolutePath());
+                currentDirLabel.setText("Выбранный каталог - "+dirChooser.getSelectedFile().getAbsolutePath());
 
             }
         });
@@ -73,7 +71,7 @@ public class App{
             }
         });
 
-
+        //Отображение GUI
         mainFrame.setVisible(true);
     }
 }
