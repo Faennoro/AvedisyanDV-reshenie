@@ -1,4 +1,4 @@
-package desk;
+package View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by Faennor on 23.05.2020.
@@ -32,6 +35,9 @@ public class App{
         final JLabel stopTimeLabel = new JLabel(""); //Показывает время остановки процесса
         final JFileChooser dirChooser = new JFileChooser(); //Диалоговое окно для выбора папки
 
+        //Исполнитель для выполнения процесса каждые 5 минут
+        ScheduledExecutorService exec = Executors.newSingleThreadScheduledExecutor();
+
         //Добавление элементов на панель
         mainFrame.add(getDirectoryButton);
         mainFrame.add(startButton);
@@ -42,33 +48,36 @@ public class App{
         mainFrame.add(stopTimeLabel);
 
         //Действие для getDirectoryButton
-
-        getDirectoryButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        getDirectoryButton.addActionListener((ActionEvent e)-> {
                 dirChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); //указываются только папки
                 dirChooser.showOpenDialog(mainFrame.getContentPane());
                 currentDirLabel.setText("Выбранный каталог - "+dirChooser.getSelectedFile().getAbsolutePath());
-
-            }
         });
 
         //Действие для кнопки startButton
-        startButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        startButton.addActionListener((ActionEvent e)-> {
                 startButton.setEnabled(false);
                 stopButton.setEnabled(true);
-                startTimeLabel.setText("Время запуска: "+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 stopTimeLabel.setText("");
-            }
+                //Запуск исполнителя с кодом каждые 5 минут
+                exec.scheduleAtFixedRate((()->{
+
+                }),0,5,TimeUnit.MINUTES);
+                //Проверка, включился ли исполнитель
+                if (!exec.isShutdown()) {
+                startTimeLabel.setText("Время запуска: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                } else startTimeLabel.setText("Ошибка запуска процесса.");
         });
 
         //Действие для кнопки stopButton
-        stopButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
+        stopButton.addActionListener((ActionEvent e)-> {
                 startButton.setEnabled(true);
                 stopButton.setEnabled(false);
-                stopTimeLabel.setText("Время остановки: "+LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            }
+                exec.shutdown();
+                //Проверка, выключился ли исполнитель
+                if (exec.isShutdown()) {
+                    stopTimeLabel.setText("Время остановки: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                } else stopTimeLabel.setText("Ошибка остановки процесса.");
         });
 
         //Отображение GUI
