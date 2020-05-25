@@ -26,7 +26,7 @@ public class App{
         container.setLayout(new FlowLayout(FlowLayout.LEFT,10,10));
 
         //Объявление элементов
-        JButton getDirectoryButton = new JButton("Выбрать каталог"); //Кнопка для выбора каталога
+        final JButton getDirectoryButton = new JButton("Выбрать каталог"); //Кнопка для выбора каталога
         final JButton startButton = new JButton("Старт"); //Кнопка для запуска процесса конвертирования
         final JButton stopButton = new JButton("Стоп");   //Кнопка для остановки процесса конвертирования
         final JLabel currentDirLabel = new JLabel(""); //Показывает выбранную папку
@@ -55,6 +55,11 @@ public class App{
 
         //Действие для кнопки startButton
         startButton.addActionListener((ActionEvent e)-> {
+            //проверка на отсутствие выбранного файла
+            if (dirChooser.getSelectedFile()==null) {
+                startTimeLabel.setText("Необходимо выбрать файл!");
+            } else{
+                //отключение кнопки Старта и включение кнопки Стоп, очистка времени окончания работы при повторном запуске
                 startButton.setEnabled(false);
                 stopButton.setEnabled(true);
                 stopTimeLabel.setText("");
@@ -63,8 +68,8 @@ public class App{
                     System.out.println("Процесс запущен");
                     if (dirChooser.getSelectedFile()!=null && dirChooser.getSelectedFile().isDirectory()) {
                         Converter converter = new Converter();
-                        converter.scanDirForPDF(dirChooser.getSelectedFile());
-                        converter.convertAllPDFtoJPG();
+                        converter.scanDirForPDF(dirChooser.getSelectedFile()); //сканирование папки и подпапок на наличие PDF
+                        converter.convertAllPDFtoJPG(); //конвертация списка PDF в JPG
                     }
 
                 }),0,5,TimeUnit.MINUTES);
@@ -72,7 +77,7 @@ public class App{
                 if (!exec.isShutdown()) {
                 startTimeLabel.setText("Время запуска: " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 } else startTimeLabel.setText("Ошибка запуска процесса.");
-        });
+            }});
 
         //Действие для кнопки stopButton
         stopButton.addActionListener((ActionEvent e)-> {

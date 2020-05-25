@@ -33,23 +33,19 @@ public class Converter {
     //Проход по списку PDF-файлов и их конвертация в JPG
     public void convertAllPDFtoJPG(){
         System.out.println("Начало конвертации");
-        for (File file : files
-             ) {
-            System.out.println("Файл в очереди: "+file.getAbsolutePath());
-
-        }
         for (File file: files) {
             try {
                 new File(file.getParent()+"/JPG").mkdir(); //Создание папки JPG
                 //Преобразование PDF с помощью библиотеки pdfbox
-                PDDocument document = PDDocument.load(file);
+                PDDocument document = PDDocument.load(file); //чтение документа
                 PDFRenderer pdfRenderer = new PDFRenderer(document);
                 if (document.getNumberOfPages()==1) //для одностраничных файлов
                 {
                     BufferedImage bim = pdfRenderer.renderImageWithDPI(
                             0, 300, ImageType.RGB);
+                    //запись изображения
                     ImageIOUtil.writeImage(
-                            bim, String.format("JPG/"+file.getName()+".%s", "jpg"), 300);
+                            bim, String.format(file.getParent()+"/JPG/"+file.getName()+".%s", "jpg"), 300);
                 } else
                 {
                     //для многостраничных файлов
@@ -57,7 +53,7 @@ public class Converter {
                         BufferedImage bim = pdfRenderer.renderImageWithDPI(
                                 page, 300, ImageType.RGB);
                         ImageIOUtil.writeImage(
-                                bim, String.format("JPG/"+file.getName()+"_%d.%s", page + 1, "jpg"), 300);
+                                bim, String.format(file.getParent()+"/JPG/"+file.getName()+"_%d.%s", page + 1, "jpg"), 300);
                     }
                 }
                 document.close(); //закрытие файла
