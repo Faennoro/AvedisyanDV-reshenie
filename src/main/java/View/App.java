@@ -60,9 +60,11 @@ public class App{
                 stopTimeLabel.setText("");
                 //Запуск исполнителя с кодом каждые 5 минут
                 exec.scheduleAtFixedRate((()->{
+                    System.out.println("Процесс запущен");
                     if (dirChooser.getSelectedFile()!=null && dirChooser.getSelectedFile().isDirectory()) {
-                        DirScanner dirScanner = new DirScanner();
-                        dirScanner.ScanDirForPDF(dirChooser.getSelectedFile());
+                        Converter converter = new Converter();
+                        converter.scanDirForPDF(dirChooser.getSelectedFile());
+                        converter.convertAllPDFtoJPG();
                     }
 
                 }),0,5,TimeUnit.MINUTES);
