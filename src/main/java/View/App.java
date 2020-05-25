@@ -3,7 +3,6 @@ package View;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executors;
@@ -61,6 +60,10 @@ public class App{
                 stopTimeLabel.setText("");
                 //Запуск исполнителя с кодом каждые 5 минут
                 exec.scheduleAtFixedRate((()->{
+                    if (dirChooser.getSelectedFile()!=null && dirChooser.getSelectedFile().isDirectory()) {
+                        DirScanner dirScanner = new DirScanner();
+                        dirScanner.ScanDirForPDF(dirChooser.getSelectedFile());
+                    }
 
                 }),0,5,TimeUnit.MINUTES);
                 //Проверка, включился ли исполнитель
