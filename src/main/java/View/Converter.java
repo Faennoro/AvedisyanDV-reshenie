@@ -14,6 +14,7 @@ import java.util.ArrayList;
 /**
  * Created by Faennor on 25.05.2020.
  */
+//Класс для сканирования папки и подпапок, конвертации найденных PDF в JPG, удаления использованных PDF
 public class Converter {
     ArrayList<File> files = new ArrayList<>();
 
@@ -33,37 +34,47 @@ public class Converter {
     //Проход по списку PDF-файлов и их конвертация в JPG
     public void convertAllPDFtoJPG(){
         System.out.println("Начало конвертации");
-        for (File file: files) {
-            try {
-                new File(file.getParent()+"/JPG").mkdir(); //Создание папки JPG
-                //Преобразование PDF с помощью библиотеки pdfbox
-                PDDocument document = PDDocument.load(file); //чтение документа
-                PDFRenderer pdfRenderer = new PDFRenderer(document);
-                if (document.getNumberOfPages()==1) //для одностраничных файлов
-                {
-                    BufferedImage bim = pdfRenderer.renderImageWithDPI(
-                            0, 300, ImageType.RGB);
-                    //запись изображения
-                    ImageIOUtil.writeImage(
-                            bim, String.format(file.getParent()+"/JPG/"+file.getName()+".%s", "jpg"), 300);
-                } else
-                {
-                    //для многостраничных файлов
-                    for (int page = 0; page < document.getNumberOfPages(); ++page) {
+        //Проверка на наличия файлов в списке
+        if (files.size()==0) {
+            System.out.println("Список пуст");
+        }else
+        {
+            //Проход по списку
+            for (File file: files) {
+                try {
+                    new File(file.getParent()+"/JPG").mkdir(); //Создание папки JPG
+                    //Преобразование PDF с помощью библиотеки pdfbox
+                    PDDocument document = PDDocument.load(file); //чтение документа
+                    PDFRenderer pdfRenderer = new PDFRenderer(document);
+                    //для одностраничных файлов
+                    if (document.getNumberOfPages()==1)
+                    {
                         BufferedImage bim = pdfRenderer.renderImageWithDPI(
-                                page, 300, ImageType.RGB);
+                                0, 300, ImageType.RGB);
+                        //запись изображения
                         ImageIOUtil.writeImage(
-                                bim, String.format(file.getParent()+"/JPG/"+file.getName()+"_%d.%s", page + 1, "jpg"), 300);
+                                bim,
+                                //форматирование вида "путь-к-папке/JPG/имя-файла-без-расширения.jpg
+                                String.format(file.getParent()+"/JPG/"+file.getName().substring(0,file.getName().length()-4)+".%s", "jpg"),
+                                300);
+                    } else
+                    {
+                        //для многостраничных файлов
+                        for (int page = 0; page < document.getNumberOfPages(); ++page) {
+                            BufferedImage bim = pdfRenderer.renderImageWithDPI(
+                                    page, 300, ImageType.RGB);
+                            ImageIOUtil.writeImage(
+                                    bim, String.format(file.getParent()+"/JPG/"+file.getName().substring(0,file.getName().length()-4)+"_%d.%s", page + 1, "jpg"), 300);
+                        }
                     }
+                    document.close(); //закрытие файла
+                    System.out.println("Файл сконвертирован");
+                    file.delete(); //удаление файла после совершения конвертации
                 }
-                document.close(); //закрытие файла
-                System.out.println("Файл сконвертирован");
-                file.delete(); //удаление файла после совершения конвертации
-            }
-            catch (IOException e){
-                System.out.println("Ошибка чтения файла.");
+                catch (IOException e){
+                    System.out.println("Ошибка чтения файла.");
+                }
             }
         }
-
     }
 }
